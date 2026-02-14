@@ -162,6 +162,83 @@ def _request(
     return data
 
 
+# ─── Profile Sync ─────────────────────────────────────────────────────────────
+
+
+def sync_profile_to_verifier() -> dict[str, Any]:
+    """Push the miner's identity, terms, and commission to the Cartha Verifier.
+
+    Only non-empty fields are included — the verifier keeps existing values
+    for anything not sent, so operators only need to set what they want to
+    change in .env.
+
+    Called once on startup so the public miner list stays up-to-date.
+    """
+    # Build identity block (only non-empty fields)
+    identity: dict[str, Any] = {}
+    if settings.miner_name:
+        identity["name"] = settings.miner_name
+    if settings.miner_description:
+        identity["description"] = settings.miner_description
+    if settings.miner_website:
+        identity["website"] = settings.miner_website
+    if settings.miner_discord:
+        identity["discord"] = settings.miner_discord
+    if settings.miner_logo_url:
+        identity["logo_url"] = settings.miner_logo_url
+
+    # Build terms block (only set fields)
+    terms: dict[str, Any] = {}
+    if settings.payout_schedule:
+        terms["payout_schedule"] = settings.payout_schedule
+    if settings.min_lock_days is not None:
+        terms["min_lock_days"] = settings.min_lock_days
+    if settings.min_lock_amount_usdc is not None:
+        terms["min_lock_amount_usdc"] = settings.min_lock_amount_usdc
+    if settings.terms_text:
+        terms["terms_text"] = settings.terms_text
+    terms["accepts_new_miners"] = settings.accepts_new_miners
+
+    # Commission
+    commission: dict[str, Any] = {"rate": settings.commission_rate}
+
+    # Home EVM address (first one if set)
+    home_evm = settings.home_evm_addresses[0] if settings.home_evm_addresses else None
+
+    payload: dict[str, Any] = {
+        "hotkey": settings.miner_hotkey,
+        "slot": settings.miner_slot,
+    }
+    if home_evm:
+        payload["home_evm_address"] = home_evm
+    if identity:
+        payload["identity"] = identity
+    if terms:
+        payload["terms"] = terms
+    payload["commission"] = commission
+
+    url = _build_url("/v1/miner/principal/sync")
+    headers = {"Accept": "application/json", "Content-Type": "application/json"}
+
+    try:
+        with httpx.Client(timeout=30.0) as client:
+            response = client.post(url, json=payload, headers=headers)
+
+        if response.status_code >= 400:
+            try:
+                detail = response.json().get("detail", response.text)
+            except Exception:
+                detail = response.text
+            raise VerifierError(
+                f"Profile sync failed ({response.status_code}): {detail}",
+                status_code=response.status_code,
+            )
+
+        return response.json()
+    except httpx.RequestError as exc:
+        raise VerifierError(f"Could not reach verifier for profile sync: {exc}") from exc
+
+
 # ─── Public API ───────────────────────────────────────────────────────────────
 
 

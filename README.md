@@ -142,9 +142,11 @@ All configuration is via environment variables (or `.env` file). See `.env.examp
 | `AGGREGATOR_HOTKEY` | Aggregator hotkey for reward accumulation |
 | `WALLET_PASSWORD` | Password to unlock your BT wallet for transfers |
 
-### Identity (shown on the Cartha frontend)
+### Identity & Terms (synced to Cartha on startup)
 
-These values are returned by `/api/miner-info` and displayed on the principal miners listing page.
+These values are **automatically synced to the Cartha verifier** every time your miner starts. They appear on the principal miners listing page at [cartha.finance/principal-miners](https://cartha.finance/principal-miners).
+
+**Only set the fields you want to change.** Leave a field blank/unset and the existing value on the verifier stays the same.
 
 | Variable | Description |
 |---|---|
@@ -153,6 +155,14 @@ These values are returned by `/api/miner-info` and displayed on the principal mi
 | `MINER_WEBSITE` | Website URL (optional) |
 | `MINER_DISCORD` | Discord invite link or handle (optional) |
 | `MINER_LOGO_URL` | URL to a square logo image, at least 128×128px (optional) |
+| `MINER_SLOT` | Your subnet slot UID (default: `0`) |
+| `PAYOUT_SCHEDULE` | e.g. `per_epoch`, `weekly`, `daily` (optional) |
+| `MIN_LOCK_DAYS` | Minimum lock duration you accept (optional) |
+| `MIN_LOCK_AMOUNT_USDC` | Minimum USDC lock amount (optional) |
+| `TERMS_TEXT` | Free-text terms displayed to delegators (optional) |
+| `ACCEPTS_NEW_MINERS` | `true` or `false` — whether you're accepting new delegations (default: `true`) |
+
+> **How sync works:** On startup, the template calls `POST /v1/miner/principal/sync` on the verifier. This updates your profile in the database so the frontend always shows your latest info. If the sync fails (e.g. verifier unreachable), startup continues normally — it will retry next restart.
 
 ### Rewards
 

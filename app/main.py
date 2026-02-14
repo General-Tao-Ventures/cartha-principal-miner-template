@@ -15,6 +15,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from .config import settings
 from .database import create_all_tables
 from .routes import admin, claim, miner_info, rewards
+from .verifier_client import sync_profile_to_verifier, VerifierError
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +37,16 @@ async def lifespan(app: FastAPI):
         logger.info("Database tables verified/created")
     except Exception as e:
         logger.error(f"Database initialization failed: {e}")
+
+    # Sync profile to Cartha verifier (fire-and-forget — don't block startup)
+    try:
+        result = sync_profile_to_verifier()
+        action = "created" if result.get("created") else "updated"
+        logger.info(f"Profile synced to verifier ({action})")
+    except VerifierError as e:
+        logger.warning(f"Profile sync failed (will retry next restart): {e}")
+    except Exception as e:
+        logger.warning(f"Profile sync error: {e}")
 
     yield
 

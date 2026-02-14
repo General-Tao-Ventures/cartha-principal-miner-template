@@ -30,14 +30,22 @@ class Settings(BaseSettings):
         alias="VERIFIER_URL",
     )
 
-    # ── Identity (shown on frontend) ──────────────────────────────────────
+    # ── Identity (shown on frontend, synced to verifier) ─────────────────
     miner_name: str = Field("", alias="MINER_NAME")
     miner_description: str = Field("", alias="MINER_DESCRIPTION")
     miner_website: str = Field("", alias="MINER_WEBSITE")
     miner_discord: str = Field("", alias="MINER_DISCORD")
     miner_logo_url: str = Field("", alias="MINER_LOGO_URL")
 
+    # ── Terms (shown on frontend, synced to verifier) ──────────────────
+    payout_schedule: str = Field("", alias="PAYOUT_SCHEDULE")
+    min_lock_days: int | None = Field(None, alias="MIN_LOCK_DAYS")
+    min_lock_amount_usdc: int | None = Field(None, alias="MIN_LOCK_AMOUNT_USDC")
+    terms_text: str = Field("", alias="TERMS_TEXT")
+    accepts_new_miners: bool = Field(True, alias="ACCEPTS_NEW_MINERS")
+
     # ── Bittensor ─────────────────────────────────────────────────────────
+    miner_slot: int = Field(0, alias="MINER_SLOT", description="Subnet slot UID")
     miner_hotkey: str = Field(..., alias="MINER_HOTKEY")
     miner_coldkey: str = Field(..., alias="MINER_COLDKEY")
     aggregator_hotkey: str = Field(..., alias="AGGREGATOR_HOTKEY")
