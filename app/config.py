@@ -36,6 +36,11 @@ class Settings(BaseSettings):
     miner_website: str = Field("", alias="MINER_WEBSITE")
     miner_discord: str = Field("", alias="MINER_DISCORD")
     miner_logo_url: str = Field("", alias="MINER_LOGO_URL")
+    miner_tags: list[str] = Field(
+        default_factory=list,
+        alias="MINER_TAGS",
+        description='JSON list of display tags, e.g. ["Automated Distribution","Self-Service Claiming"]',
+    )
 
     # ── Terms (shown on frontend, synced to verifier) ──────────────────
     payout_schedule: str = Field("", alias="PAYOUT_SCHEDULE")
@@ -94,6 +99,25 @@ class Settings(BaseSettings):
     )
 
     # ── Validators ────────────────────────────────────────────────────────
+
+    @field_validator("miner_tags", mode="before")
+    @classmethod
+    def parse_miner_tags(cls, v: Any) -> list[str]:
+        """Parse MINER_TAGS from JSON string if needed."""
+        if isinstance(v, str):
+            if not v.strip():
+                return []
+            try:
+                parsed = json.loads(v)
+                if isinstance(parsed, list):
+                    return [str(t).strip() for t in parsed if t]
+                raise ValueError("MINER_TAGS must be a JSON array")
+            except json.JSONDecodeError:
+                # Comma-separated fallback: "Tag One,Tag Two"
+                return [t.strip() for t in v.split(",") if t.strip()]
+        if isinstance(v, list):
+            return [str(t).strip() for t in v if t]
+        return []
 
     @field_validator("cors_origins", mode="before")
     @classmethod

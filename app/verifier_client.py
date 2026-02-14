@@ -186,6 +186,8 @@ def sync_profile_to_verifier() -> dict[str, Any]:
         identity["discord"] = settings.miner_discord
     if settings.miner_logo_url:
         identity["logo_url"] = settings.miner_logo_url
+    if settings.miner_tags:
+        identity["tags"] = settings.miner_tags
 
     # Build terms block (only set fields)
     terms: dict[str, Any] = {}
