@@ -30,6 +30,14 @@ class Settings(BaseSettings):
         alias="VERIFIER_URL",
     )
 
+    # ── Public API URL (synced to verifier — frontend fetches rich data from here)
+    api_url: str = Field(
+        "",
+        alias="API_URL",
+        description="Public URL of this miner's API (e.g. https://my-miner.example.com). "
+                    "Synced to verifier so the frontend can fetch rewards, claims, and federated miner data.",
+    )
+
     # ── Identity (shown on frontend, synced to verifier) ─────────────────
     miner_name: str = Field("", alias="MINER_NAME")
     miner_description: str = Field("", alias="MINER_DESCRIPTION")

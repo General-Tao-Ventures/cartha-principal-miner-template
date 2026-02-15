@@ -213,6 +213,8 @@ def sync_profile_to_verifier() -> dict[str, Any]:
     }
     if home_evm:
         payload["home_evm_address"] = home_evm
+    if settings.api_url:
+        payload["api_url"] = settings.api_url
     if identity:
         payload["identity"] = identity
     if terms:
