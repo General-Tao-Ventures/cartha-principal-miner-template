@@ -144,7 +144,7 @@ All configuration is via environment variables (or `.env` file). See `.env.examp
 
 ### Identity & Terms (synced to Cartha on startup)
 
-These values are **automatically synced to the Cartha verifier** every time your miner starts. They appear on the principal miners listing page at [cartha.finance/principal-miners](https://cartha.finance/principal-miners).
+These values are **automatically synced to the Cartha verifier** every time your miner starts. They appear on the principal miners listing page at [liquidity.0xmarkets.io/principal-miners](https://liquidity.0xmarkets.io/principal-miners).
 
 **Only set the fields you want to change.** Leave a field blank/unset and the existing value on the verifier stays the same.
 
